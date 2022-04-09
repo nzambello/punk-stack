@@ -30,7 +30,6 @@ export const action: ActionFunction = async ({ request }) => {
   const email = formData.get('email');
   const password = formData.get('password');
   const redirectTo = formData.get('redirectTo');
-  const remember = formData.get('remember');
 
   if (!validateEmail(email)) {
     return json<ActionData>(
@@ -53,49 +52,47 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const { error, user, session } = await supabase.auth.signIn({
-    email,
-    password
-  });
+  const result = await supabase.auth.signUp({ email, password });
 
-  if (error || !session) {
+  if (result.error) {
     return json<ActionData>(
       {
         errors: {
-          email: error?.message ?? 'Invalid email or password',
-          password: error?.message ?? 'Invalid email or password'
+          email: result.error.message,
+          password: result.error.message
         }
       },
-      { status: error?.status ?? 400 }
+      { status: result.error.status }
     );
   }
 
-  // if (result.user) {
-  //   return redirect('/notes');
-  // } else {
-  //   return redirect('/authsuccess');
-  // }
+  if (result.user) {
+    return redirect('/notes');
+  } else {
+    return redirect('/authsuccess');
+  }
 
-  return createUserSession({
-    request,
-    session,
-    remember: remember === 'on' ? true : false,
-    redirectTo: typeof redirectTo === 'string' ? redirectTo : '/notes'
-  });
+  //   return createUserSession({
+  //     request,
+  //     userId: user.id,
+  //     remember: remember === 'on' ? true : false,
+  //     redirectTo: typeof redirectTo === 'string' ? redirectTo : '/notes'
+  //   });
 };
 
 export const meta: MetaFunction = () => {
   return {
-    title: 'Login/Signin'
+    title: 'Sign up'
   };
 };
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') || '/notes';
   const actionData = useActionData() as ActionData;
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
+  const [hasAcceptedTerms, setHasAcceptedTerms] = React.useState(false);
 
   React.useEffect(() => {
     if (actionData?.errors?.email) {
@@ -163,29 +160,33 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <input type="hidden" name="redirectTo" value={redirectTo} />
-          <button
-            type="submit"
-            className="w-full rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
-          >
-            Log in
-          </button>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
-                id="remember"
-                name="remember"
+                id="accept_terms"
+                name="accept_terms"
+                checked={hasAcceptedTerms}
+                onChange={(e) => setHasAcceptedTerms(e.target.checked)}
                 type="checkbox"
                 className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <label
-                htmlFor="remember"
+                htmlFor="accept_terms"
                 className="ml-2 block text-sm text-gray-900"
               >
-                Remember me
+                Accept terms
               </label>
             </div>
           </div>
+
+          <input type="hidden" name="redirectTo" value={redirectTo} />
+          <button
+            type="submit"
+            disabled={!hasAcceptedTerms}
+            className="w-full rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400 disabled:opacity-60"
+          >
+            Sign up
+          </button>
         </Form>
       </div>
     </div>

@@ -1,9 +1,9 @@
 import { Link } from '@remix-run/react';
-
 import { useOptionalUser } from '~/utils';
 
 export default function Index() {
   const user = useOptionalUser();
+
   return (
     <main className="relative min-h-screen bg-white sm:flex sm:items-center sm:justify-center">
       <div className="relative sm:pb-16 sm:pt-8">
@@ -12,15 +12,14 @@ export default function Index() {
             <div className="absolute inset-0">
               <img
                 className="h-full w-full object-cover"
-                src="https://user-images.githubusercontent.com/1500684/158276320-c46b661b-8eff-4a4d-82c6-cf296c987a12.jpg"
-                alt="BB King playing blues on his Les Paul guitar"
+                src="https://repository-images.githubusercontent.com/479718095/717f6cd4-1b98-4830-a86f-91891b0af17b"
+                alt="The Clash"
               />
-              <div className="absolute inset-0 bg-[color:rgba(27,167,254,0.5)] mix-blend-multiply" />
             </div>
             <div className="lg:pb-18 relative px-4 pt-16 pb-8 sm:px-6 sm:pt-24 sm:pb-14 lg:px-8 lg:pt-32">
               <h1 className="text-center text-6xl font-extrabold tracking-tight sm:text-8xl lg:text-9xl">
-                <span className="block uppercase text-blue-500 drop-shadow-md">
-                  Blues Stack
+                <span className="sr-only block uppercase text-blue-500 drop-shadow-md">
+                  Punk Stack
                 </span>
               </h1>
               <p className="mx-auto mt-6 max-w-lg text-center text-xl text-white sm:max-w-3xl">
@@ -38,7 +37,7 @@ export default function Index() {
                 ) : (
                   <div className="space-y-4 sm:mx-auto sm:inline-grid sm:grid-cols-2 sm:gap-5 sm:space-y-0">
                     <Link
-                      to="/join"
+                      to="/signup"
                       className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-blue-700 shadow-sm hover:bg-blue-50 sm:px-8"
                     >
                       Sign up
@@ -77,9 +76,9 @@ export default function Index() {
                 href: 'https://www.postgresql.org/'
               },
               {
-                src: 'https://user-images.githubusercontent.com/1500684/157764484-ad64a21a-d7fb-47e3-8669-ec046da20c1f.svg',
-                alt: 'Prisma',
-                href: 'https://prisma.io'
+                src: 'https://supabase.com/brand-assets/supabase-logo-wordmark--light.svg',
+                alt: 'Supabase',
+                href: 'https://supabase.io'
               },
               {
                 src: 'https://user-images.githubusercontent.com/1500684/157764276-a516a239-e377-4a20-b44a-0ac7b65c8c14.svg',
@@ -90,11 +89,6 @@ export default function Index() {
                 src: 'https://user-images.githubusercontent.com/1500684/157764454-48ac8c71-a2a9-4b5e-b19c-edef8b8953d6.svg',
                 alt: 'Cypress',
                 href: 'https://www.cypress.io'
-              },
-              {
-                src: 'https://user-images.githubusercontent.com/1500684/157772386-75444196-0604-4340-af28-53b236faa182.svg',
-                alt: 'MSW',
-                href: 'https://mswjs.io'
               },
               {
                 src: 'https://user-images.githubusercontent.com/1500684/157772447-00fccdce-9d12-46a3-8bb4-fac612cdc949.svg',

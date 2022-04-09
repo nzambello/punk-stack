@@ -7,19 +7,19 @@ import { json, redirect } from '@remix-run/node';
 import { Form, Link, useActionData, useSearchParams } from '@remix-run/react';
 import * as React from 'react';
 
-import { getUserId, createUserSession } from '~/session.server';
-
-import { createUser, getUserByEmail } from '~/models/user.server';
+import { createUserSession, getSbSession } from '~/session.server';
 import { validateEmail } from '~/utils';
 
+import supabase from '~/supabase.server';
+
 export const loader: LoaderFunction = async ({ request }) => {
-  const userId = await getUserId(request);
-  if (userId) return redirect('/');
+  const session = await getSbSession(request);
+  if (session) return redirect('/');
   return json({});
 };
 
 interface ActionData {
-  errors: {
+  errors?: {
     email?: string;
     password?: string;
   };
@@ -30,6 +30,7 @@ export const action: ActionFunction = async ({ request }) => {
   const email = formData.get('email');
   const password = formData.get('password');
   const redirectTo = formData.get('redirectTo');
+  const remember = formData.get('remember');
 
   if (!validateEmail(email)) {
     return json<ActionData>(
@@ -52,33 +53,38 @@ export const action: ActionFunction = async ({ request }) => {
     );
   }
 
-  const existingUser = await getUserByEmail(email);
-  if (existingUser) {
+  const result = await supabase.auth.signIn({ email, password });
+
+  if (result.error) {
     return json<ActionData>(
-      { errors: { email: 'A user already exists with this email' } },
+      { errors: { email: 'Invalid email' } },
       { status: 400 }
     );
   }
 
-  const user = await createUser(email, password);
+  if (result.user) {
+    return redirect('/notes');
+  } else {
+    return redirect('/authsuccess');
+  }
 
-  return createUserSession({
-    request,
-    userId: user.id,
-    remember: false,
-    redirectTo: typeof redirectTo === 'string' ? redirectTo : '/'
-  });
+  //   return createUserSession({
+  //     request,
+  //     userId: user.id,
+  //     remember: remember === 'on' ? true : false,
+  //     redirectTo: typeof redirectTo === 'string' ? redirectTo : '/notes'
+  //   });
 };
 
 export const meta: MetaFunction = () => {
   return {
-    title: 'Sign Up'
+    title: 'Login/Signin'
   };
 };
 
-export default function Join() {
+export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get('redirectTo') ?? undefined;
+  const redirectTo = searchParams.get('redirectTo') || '/notes';
   const actionData = useActionData() as ActionData;
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);
@@ -136,7 +142,7 @@ export default function Join() {
                 ref={passwordRef}
                 name="password"
                 type="password"
-                autoComplete="new-password"
+                autoComplete="current-password"
                 aria-invalid={actionData?.errors?.password ? true : undefined}
                 aria-describedby="password-error"
                 className="w-full rounded border border-gray-500 px-2 py-1 text-lg"
@@ -154,20 +160,22 @@ export default function Join() {
             type="submit"
             className="w-full rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
           >
-            Create Account
+            Log in
           </button>
-          <div className="flex items-center justify-center">
-            <div className="text-center text-sm text-gray-500">
-              Already have an account?{' '}
-              <Link
-                className="text-blue-500 underline"
-                to={{
-                  pathname: '/login',
-                  search: searchParams.toString()
-                }}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="remember"
+                name="remember"
+                type="checkbox"
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <label
+                htmlFor="remember"
+                className="ml-2 block text-sm text-gray-900"
               >
-                Log in
-              </Link>
+                Remember me
+              </label>
             </div>
           </div>
         </Form>

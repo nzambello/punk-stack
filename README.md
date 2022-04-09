@@ -1,21 +1,24 @@
-# Remix Blues Stack
+# Remix Punk Stack
 
-![The Remix Blues Stack](https://repository-images.githubusercontent.com/461012689/37d5bd8b-fa9c-4ab0-893c-f0a199d5012d)
+[Remix](https://remix.run/stacks) stack with supabase, tailwind, jest, cypress and fly deploy and some opinionated tools.
+
+![The Remix Punk Stack](https://repository-images.githubusercontent.com/479718095/26db9b7c-961b-4bb7-a212-d58bf64d4aaa)
+
+Derived from [The Remix Blues Stack](https://github.com/remix-run/blues-stack) by @remix-run. Ref commit [7cdd098](https://github.com/remix-run/blues-stack/commit/7cdd0985b4c96b7c14ef234a3ee53fbf028c8f47).
 
 Learn more about [Remix Stacks](https://remix.run/stacks).
 
 ```
-npx create-remix --template remix-run/blues-stack
+npx create-remix --template nzambello/punk-stack
 ```
 
 ## What's in the stack
 
 - [Multi-region Fly app deployment](https://fly.io/docs/reference/scaling/) with [Docker](https://www.docker.com/)
-- [Multi-region Fly PostgreSQL Cluster](https://fly.io/docs/getting-started/multi-region-databases/)
 - Healthcheck endpoint for [Fly backups region fallbacks](https://fly.io/docs/reference/configuration/#services-http_checks)
+- [Supabase Database integration](https://supabase.com/)
+- Email/Password Authentication with [Supabase Auth](https://supabase.com/docs/auth/)
 - [GitHub Actions](https://github.com/features/actions) for deploy on merge to production and staging environments
-- Email/Password Authentication with [cookie-based sessions](https://remix.run/docs/en/v1/api/remix#createcookiesessionstorage)
-- Database ORM with [Prisma](https://prisma.io)
 - Styling with [Tailwind](https://tailwindcss.com/)
 - End-to-end testing with [Cypress](https://cypress.io)
 - Local third party request mocking with [MSW](https://mswjs.io)
@@ -23,29 +26,39 @@ npx create-remix --template remix-run/blues-stack
 - Code formatting with [Prettier](https://prettier.io)
 - Linting with [ESLint](https://eslint.org)
 - Static Types with [TypeScript](https://typescriptlang.org)
+- Husky pre-commit hooks running tests and linting
+- [Commmitlint](https://commitlint.js.org/) for commit message validation based on [Conventional Commits](https://www.conventionalcommits.org/en/)
+- Changelog and release management with [release-it](https://github.com/release-it/release-it), using convential changellog
 
 Not a fan of bits of the stack? Fork it, change it, and use `npx create-remix --template your/repo`! Make it your own.
 
-## Development
+## Setup and development
 
-- Start the Postgres Database in [Docker](https://www.docker.com/get-started):
+- Install dependencies
 
   ```sh
-  npm run docker
+  yarn
+  # or npm install
+  # or pnpm install
   ```
 
-  > **Note:** The npm script will complete while Docker sets up the container in the background. Ensure that Docker has finished and your container is running before proceeding.
+- Create a supabase project on [app.supabase.io](https://app.supabase.io)
 
-- Initial setup:
+- Create a new supabase database (refer to the [supabase docs](https://supabase.com/docs/getting-started) for more information). Follow types definition for table structures.
 
-  ```sh
-  npm run setup
-  ```
+- Setup supabase environment variables in `.env`, example:
 
-- Run the first build:
+  ```env
+    SUPABASE_ANON_KEY=<your supabase anon public key>
+    SUPABASE_API_URL=<your supabase url>
+    SESSION_SECRET="super-duper-s3cret"
 
-  ```sh
-  npm run build
+    # supabase user to use for authentication in e2e tests
+    # signup once in the browser to create your test user
+    # DISCLAIMER: didn't find a better way, please don't use this in production
+    # see https://github.com/supabase/supabase/discussions/6177
+    SUPABASE_E2ETEST_USERMAIL="user@provider.mail"
+    SUPABASE_E2ETEST_PASSWORD="your-supabase-user-password"
   ```
 
 - Start dev server:
@@ -56,13 +69,6 @@ Not a fan of bits of the stack? Fork it, change it, and use `npx create-remix --
 
 This starts your app in development mode, rebuilding assets on file changes.
 
-The database seed script creates a new user with some data you can use to get started:
-
-- Email: `rachel@remix.run`
-- Password: `racheliscool`
-
-If you'd prefer not to use Docker, you can also use Fly's Wireguard VPN to connect to a development database (or even your production database). You can find the instructions to set up Wireguard [here](https://fly.io/docs/reference/private-networking/#install-your-wireguard-app), and the instructions for creating a development database [here](https://fly.io/docs/reference/postgres/).
-
 ### Relevant code:
 
 This is a pretty simple note-taking app, but it's a good example of how you can build a full stack app with Prisma and Remix. The main functionality is creating users, logging in and out, and creating and deleting notes.
@@ -70,6 +76,12 @@ This is a pretty simple note-taking app, but it's a good example of how you can 
 - creating users, and logging in and out [./app/models/user.server.ts](./app/models/user.server.ts)
 - user sessions, and verifying them [./app/session.server.ts](./app/session.server.ts)
 - creating, and deleting notes [./app/models/note.server.ts](./app/models/note.server.ts)
+
+## Update types from supabase
+
+```sh
+npx openapi-typescript https://your-project-id.supabase.co/rest/v1/?apikey=your-anon-key --output types/supabase.ts
+```
 
 ## Deployment
 
@@ -107,6 +119,14 @@ Prior to your first deployment, you'll need to do a few things:
   ```
 
 - Add a `FLY_API_TOKEN` to your GitHub repo. To do this, go to your user settings on Fly and create a new [token](https://web.fly.io/user/personal_access_tokens/new), then add it to [your repo secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets) with the name `FLY_API_TOKEN`.
+
+- Setup supabase environment variables in `.env`, example:
+
+  ```env
+    SUPABASE_ANON_KEY=<your supabase anon public key>
+    SUPABASE_API_URL=<your supabase url>
+    SESSION_SECRET="super-duper-s3cret"
+  ```
 
 - Add a `SESSION_SECRET` to your fly app secrets, to do this you can run the following commands:
 

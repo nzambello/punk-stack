@@ -1,1 +1,7 @@
-{}
+{
+  "requestTimeout": 5000,
+  "defaultCommandTimeout": 10000,
+  "retries": 3,
+  "viewportWidth": 1280,
+  "chromeWebSecurity": false
+}
