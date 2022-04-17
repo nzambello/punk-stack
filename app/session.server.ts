@@ -1,5 +1,5 @@
 import { createCookieSessionStorage, redirect } from '@remix-run/node';
-import { Session, User } from '@supabase/supabase-js';
+import type { Session, User } from '@supabase/supabase-js';
 import { SESSION_SECRET } from './variables.server';
 
 export const sessionStorage = createCookieSessionStorage({

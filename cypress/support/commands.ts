@@ -8,12 +8,6 @@ interface Email {
   date: string;
 }
 
-interface EmailDetails extends Email {
-  attachments: File[];
-  body: string;
-  textBody: string;
-  htmlBody: string;
-}
 declare global {
   namespace Cypress {
     interface Chainable {

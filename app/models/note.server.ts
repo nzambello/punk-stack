@@ -1,5 +1,5 @@
 import type { User } from '@supabase/supabase-js';
-import { definitions } from 'types/supabase';
+import type { definitions } from 'types/supabase';
 import supabase, { supabaseAdmin } from '~/supabase.server';
 import { v4 as uuid } from 'uuid';
 
@@ -37,7 +37,7 @@ export async function createNote({
   userId: User['id'];
 }) {
   const newNoteId = uuid();
-  const { data, error } = await supabaseAdmin.from<Note>('notes').insert(
+  const { error } = await supabaseAdmin.from<Note>('notes').insert(
     [
       {
         id: newNoteId,

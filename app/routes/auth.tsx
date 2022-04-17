@@ -4,10 +4,10 @@ import type {
   MetaFunction
 } from '@remix-run/node';
 import { json, redirect } from '@remix-run/node';
-import { Form, Link, useActionData, useSearchParams } from '@remix-run/react';
+import { Form, useActionData, useSearchParams } from '@remix-run/react';
 import * as React from 'react';
 
-import { createUserSession, getSbSession } from '~/session.server';
+import { getSbSession } from '~/session.server';
 import { validateEmail } from '~/utils';
 
 import supabase from '~/supabase.server';
@@ -29,8 +29,6 @@ export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   const email = formData.get('email');
   const password = formData.get('password');
-  const redirectTo = formData.get('redirectTo');
-  const remember = formData.get('remember');
 
   if (!validateEmail(email)) {
     return json<ActionData>(
